@@ -1,0 +1,49 @@
+
+main()
+{
+  int dist;
+
+  struct { int x;
+	   int y; }  coord1;
+
+  struct { int x;
+	   int y; } coord2;
+
+
+  coord1.x = 1;
+  coord1.y = 3;
+
+  coord2.x = 5;
+  coord2.y = 4;
+
+  dist = manhatan(coord1.x,coord1.y,coord2.x,coord2.y);
+
+  printf("\n La distancia Manhattan ");
+  printf("del punto (%d,%d)",coord1.x,coord1.y);
+  printf(" al punto (%d,%d)",coord2.x,coord2.y);
+  printf(" es: %d\n\n",dist);
+  printf("\n\n FIN DEL PROGRAMA\n\n");
+
+
+}
+
+manhatan(ax,ay,bx,by)
+int ax,ay,bx,by;
+{
+  int aux1,aux2;
+
+  aux1 = ax - bx;
+
+  switch ( aux1 >= 0 ) {
+	case 0 : aux1 *= -1; break;
+  }
+
+
+  aux2 = ay - by;
+
+  switch ( aux2 >= 0 ) {
+	case 0 : aux2 *= -1; break;
+  }
+
+  return (aux1 + aux2);
+}

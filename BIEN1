@@ -1,0 +1,21 @@
+main()
+{ int a;
+  int *b;
+
+  a=5;
+  *b=a+7;
+  a=resta(a,*b);
+  printf ("VALOR DE a: %d\nVALOR DE b: %d",a,*b);
+
+
+}
+
+resta(op1,op2)
+int op1,op2;
+{ switch (op1 >= op2) {
+	case 0 :return(op2-op1);break;
+	default:return(op1-op2);break;
+	}
+
+	}
+

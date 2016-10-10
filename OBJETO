@@ -1,0 +1,193 @@
+J main
+
+main:LDA,i  1
+STA  __T0
+LDIX,i coord1__2
+STA [0]
+LDA,i  3
+STA  __T0
+LDIX,i coord1__2
+STA [1]
+LDA,i  5
+STA  __T0
+LDIX,i coord2__2
+STA [0]
+LDA,i  4
+STA  __T0
+LDIX,i coord2__2
+STA [1]
+LDIX,i coord1__2
+LDA [0]
+STA __T0
+LDIX,i coord1__2
+LDA [1]
+STA __T1
+LDIX,i coord2__2
+LDA [0]
+STA __T2
+LDIX,i coord2__2
+LDA [1]
+STA __T3
+PUSH __T0
+PUSH __T1
+PUSH __T2
+PUSH __T3
+CALL manhatan
+STA  dist__2
+PUSH,i __s0
+CALL printf
+LDIX,i coord1__2
+LDA [0]
+STA __T0
+LDIX,i coord1__2
+LDA [1]
+STA __T1
+PUSH __T1
+PUSH __T0
+PUSH,i __s1
+CALL printf
+LDIX,i coord2__2
+LDA [0]
+STA __T0
+LDIX,i coord2__2
+LDA [1]
+STA __T1
+PUSH __T1
+PUSH __T0
+PUSH,i __s2
+CALL printf
+LDA  dist__2
+STA  __T0
+PUSH __T0
+PUSH,i __s3
+CALL printf
+PUSH,i __s4
+CALL printf
+STOP
+LDA  ax__3
+STA  __T0
+LDA  ay__3
+STA  __T1
+LDA  bx__3
+STA  __T2
+LDA  by__3
+STA  __T3
+manhatan: POP dir_retorno
+POP by__3 
+POP bx__3 
+POP ay__3 
+POP ax__3 
+PUSH dir_retorno
+LDA   ax__3
+SUB  bx__3
+STA  __T0
+STA  aux1__3
+LDA  aux1__3
+SUB,i  0
+STA  __T0
+JM __ayl0
+JZ __lute0
+J __lya0
+__ayl0 : SUB __T0
+J __lya0
+__lute0 : NOT
+__lya0 : NOP
+STA  __comp0
+__etiq00:LDA,i  0
+STA  __T1
+SUB  __comp0
+JNZ  __etiq01
+LDA,i  1
+MUL,i -1
+STA  __T2
+MUL  aux1__3
+STA  aux1__3
+J __fin0
+__etiq01:NOP
+__fin0:LDA   ay__3
+SUB  by__3
+STA  __T0
+STA  aux2__3
+LDA  aux2__3
+SUB,i  0
+STA  __T0
+JM __ayl1
+JZ __lute1
+J __lya1
+__ayl1 : SUB __T0
+J __lya1
+__lute1 : NOT
+__lya1 : NOP
+STA  __comp0
+__etiq02:LDA,i  0
+STA  __T1
+SUB  __comp0
+JNZ  __etiq03
+LDA,i  1
+MUL,i -1
+STA  __T2
+MUL  aux2__3
+STA  aux2__3
+J __fin1
+__etiq03:NOP
+__fin1:LDA   aux1__3
+ADD  aux2__3
+STA  __T0
+RET
+RET
+
+
+
+printf : POP dir_retorno
+POP __pfs
+__buc : LDA (__pfs)
+JZ __finpf
+SUB,i '%'
+JZ __porcentaje
+LDA (__pfs)
+SUB,i '\\'
+JZ __slash
+WRITE (__pfs)
+INC __pfs
+J __buc
+__porcentaje : INC __pfs
+LDA (__pfs)
+SUB,i 'd'
+JZ __int
+POP __argpf
+WRITE __argpf
+INC __pfs
+J __buc
+__int : POP __argpf
+WRINT __argpf
+INC __pfs
+J __buc
+__slash : INC __pfs
+WRITE,i '\n'
+INC __pfs
+J __buc
+__finpf : PUSH dir_retorno
+RET
+ax__3: DC 0
+ay__3: DC 0
+bx__3: DC 0
+by__3: DC 0
+dist__2: DC 0
+coord1__2 :DS 2
+coord2__2 :DS 4
+aux1__3: DC 0
+aux2__3: DC 0
+__T0 : DC 0
+__T1 : DC 0
+__T2 : DC 0
+__T3 : DC 0
+dir_retorno : DC 0
+__comp0: DC 0
+__s0 : DFSTR "\n La distancia Manhattan "
+__s1 : DFSTR "del punto (%d,%d)"
+__s2 : DFSTR " al punto (%d,%d)"
+__s3 : DFSTR " es: %d\n\n"
+__s4 : DFSTR "\n\n FIN DEL PROGRAMA\n\n"
+__pfs : DC 0
+__argpf : DC 0
+END

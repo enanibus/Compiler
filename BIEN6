@@ -1,0 +1,61 @@
+struct tipo { int num;
+	      struct {  char l1;
+			char l2; }  let;
+	    }  mat;
+
+int mes, ano;
+
+main()
+{
+   mat.num = 7276;
+   mat.let.l1 = 'O';
+   mat.let.l2 = 'B';
+
+   mes = funcion1 (mat.let.l1, mat.let.l2);
+   ano = funcion2 (mat.let.l1, mat.let.l2);
+
+   printf("Automovil %s-%d-%s\n ",mat.let.l1,mat.num,mat.let.l2);
+
+   switch ( mes ) {
+
+	case 1  : printf ("   Vendido en Enero de  %d\n",ano); break;
+	case 2  : printf ("   Vendido en Febrero de %d\n",ano); break;
+	case 3  : printf ("   Vendido en Marzo de  %d\n",ano); break;
+	case 4  : printf ("   Vendido en Abril de %d\n",ano); break;
+	case 5  : printf ("   Vendido en Mayo de  %d\n",ano); break;
+	case 6  : printf ("   Vendido en Junio de %d\n",ano); break;
+	case 7  : printf ("   Vendido en Julio de  %d\n",ano); break;
+	case 8  : printf ("   Vendido en Agosto de %d\n",ano); break;
+	case 9  : printf ("   Vendido en Septiembre de  %d\n",ano); break;
+	case 10 : printf ("   Vendido en Octubre de %d\n",ano); break;
+	case 11 : printf ("   Vendido en Noviembre de  %d\n",ano); break;
+	case 12 : printf ("   Vendido en Diciembre de %d\n",ano); break;
+
+   }
+
+}
+
+
+funcion1 (par1, par2)
+char par1, par2;
+{  int temp;
+
+      temp = (par1 + par2) % (7 + 5);
+      return temp + 1;
+}
+
+
+funcion2 (p1,p2)
+char p1,p2;
+{ int base;
+
+  base = 1950;
+  base += (p1+p2) % (41);
+  return base;
+}
+
+
+
+
+
+

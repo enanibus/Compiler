@@ -1,0 +1,50 @@
+
+int resto;
+
+main()
+
+{ int o1,o2,res;
+  char b;
+
+
+  o1 = 40;
+  o2 = o1 - 10;
+
+  b = '/';
+
+  res = operar(b,o1,o2);
+
+  pritf("\nResultado: %d %c %d = %d\n",o1,b,o2,res);
+
+  switch (b) {
+    case '/' : printf ("El resto de la division es %d\n",resto);
+	       break;
+  }
+
+  printf("\nFIN DEL PROGRAMA\n");
+
+}
+
+
+operar(tipo,op1,op2)
+char tipo;
+int op1,op2;
+
+{ int coc;
+
+  switch (tipo) {
+	case '+' : return (op1 + op2);break;
+	case '-' : switch (op1 >= op2) {
+		       case 0 : return (op2 - op1); break;
+		       default: return (op1 - op2); break;
+		   } break;
+	case '*' : return (op1 * op2); break;
+	case '/' : coc = op1 / op2;
+		   resto = op1 % op2;
+		   return (coc); break;
+	default  : printf ("\n ERROR EN EL CODIGO DE OPERACION\n");
+		   break;
+  }
+}
+
+

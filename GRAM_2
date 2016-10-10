@@ -1,0 +1,15 @@
+  identificador ---> letra {siguiente_car cter}*
+
+  siguiente_car cter ---> letra | d¡gito
+
+  letra ---> a - z | A - Z 
+  
+  d¡gito ---> 0 - 9
+
+  constante ---> const_decimal | const_car cter | const_string
+
+  const_decimal ---> {d¡gito}+
+
+  const_car cter ---> 'car cter'
+
+  const_string ---> "{car cter}*

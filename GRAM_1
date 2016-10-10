@@ -1,0 +1,69 @@
+  UDT ---> DEXT | UDT  DEXT
+
+  DEXT ---> DDF | LDD  DDF
+
+  DDF ---> DD  LDD  PC | DD  PC 
+  
+  DECL ---> LDP
+
+  LDD ---> DECLON | DECLON  DECLON | DECLON  DECLON  DECLON |
+           DECLON  DECLON  DECLON  DECLON |
+           DECLON  DECLON  DECLON  DECLON  DECLON
+
+  EDT ---> int | char
+
+  OPBIN ---> + | - | * | / | % | < | > | <= | >= | != | == | || | &&
+
+  OPASIGN ---> = | += | -=| *= | /= | %= 
+  
+  DECLON ---> E-STRUCT  EXPR ; | EDT  EXPR ; | EDT  EXPR , EXPR ; |
+              EDT  EXPR , EXPR , EXPR ; | EDT  EXPR , EXPR , EXPR , EXPR ; |
+              struct  EXPR ;
+
+  E-STRUCT ---> struct  EXPR  {  LDD  } | struct  {  LDD  }
+
+  LDP ---> P | P  LDP
+
+  PC ---> {  LDD  DECL  } | {  DECL  }
+
+  P ---> return  EXPR ; | return ; | PDS | LLAMFUNC | ID  OPASIGN  EXPR ; |
+         * ID  OPASIGN  EXPR ; | ID  OPASIGN  LLAMFUNC |
+         * ID  OPASIGN  LLAMFUNC | ID . ID  OPASIGN  EXPR ; |
+         ID . ID . ID  OPASIGN  EXPR ; | * ID . ID  OPASIGN  EXPR ; |
+         * ID . * ID  OPASIGN  EXPR ;
+
+  DD ---> ID ( ) | ID  (  EXPR  ) | ID  (  EXPR , EXPR  ) |
+          ID  (  EXPR , EXPR , EXPR  ) | ID  (  EXPR , EXPR , EXPR , EXPR  ) |
+          ID  (  EXPR , EXPR , EXPR , EXPR , EXPR  ) |
+          ID  (  EXPR , EXPR , EXPR , EXPR , EXPR , EXPR  )
+
+  LLAMFUNC ---> DD ;
+
+  VALOR1 ---> ID . ID | ID . ID . ID | ID . ID . ID . ID
+
+  PDS ---> switch  EXPR  {  L  } | switch  EXPR  {  A  B  }
+
+  L ---> LPROPETIQ
+
+  LPROPETIQ ---> PETIQ ; | PETIQ ;  LPROPETIQ
+
+  PETIQ ---> case  EXPR  :  DECL  break | case  EXPR  :  break |
+             default  :  DECL  break | default  :  break
+
+  B ---> ;
+
+  A ---> break
+
+  EXPR ---> ID | CS | CC | CD | * ID | * (  EXPR  ) | (  EXPR  ) | ! ID |  
+            ! (  EXPR  ) | ID ++ | ID -- | - ID | - CD | - (  EXPR  ) | 
+            ID . ID ++ | ID . ID -- | VALOR1 | CD  OPBIN  CD |
+            CD  OPBIN  ID | ID  OPBIN  CD | ID  OPBIN  ID |
+            (  EXPR  )  OPBIN  (  EXPR  ) | * ID ++ | * ID -- | ID . * ID ? |
+            * ID . ID | * ID . * ID 
+
+  
+
+
+         
+
+     

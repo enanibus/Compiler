@@ -1,0 +1,21 @@
+int a;
+int *b;
+
+main()
+{
+  int jac,emi;
+
+  *b= 5;
+  printf ("b antes es: %d\n" , b);
+  a = *b++;
+  printf ("el valor de a es: %d\n",a);
+  printf ("b despues es: %d\n", b);
+
+  jac = 100;
+  jac *= a + 4;
+  emi = (a++) - ((12/4) - (53%50));
+
+  printf("emi es %d\n",emi);
+
+}
+

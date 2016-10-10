@@ -1,0 +1,1106 @@
+\1cw
+\U1STANDARD
+\U4BOLD
+\U6SYMBOL
+\U7GREEK
+\U8LINEDRAW
+\U9MATHI
+\U!UNDERLIN
+\U"ORATOR
+\FD
+\+
+\+
+\+
+\^\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \@\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \^\,
+\=
+\+
+\,
+\+
+\,
+\-
+\+
+\^\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \4PRACTICA DE COMPILADORES\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \^\,
+\-
+\+
+\,
+\-
+\+
+\^\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \1CURSO 1991-92\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \^\,
+\-
+\+
+\,
+\+
+\,
+\+
+\,
+\+
+\,
+\+
+\^\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \"ENSAMBLADOR SIMBOLICO\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \^\,
+\+
+\,
+\+
+\^\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \1ass versi¢n 1.0\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \^\,
+\+
+\,
+\+
+\,
+\+
+\,
+\+
+\,
+\+
+\,
+\+
+\,
+\+
+\,
+\+
+En el \ presente \ documento \ se \ suministra \ informaci¢n \ sobre \ el 
+\-
+\+
+ensamblador \ simb¢lico \ que \ se \ usar  \ para \ verificar \ el \ \ buen 
+\-
+\+
+funcionamiento del \ c¢digo \ generado \ por \ el \ compilador \ que \ se 
+\-
+\+
+desarrolle como pr ctica de la asignatura de Compiladores \ el \ a¤o 
+\-
+\+
+1991-92. Dado que se trata de la primera versi¢n que \ circula \ del 
+\-
+\+
+ensamblador, podr¡a contener todav¡a algunos errores de dise¤o. \ A 
+\-
+\+
+fin de corregirlos y realizar posibles \ mejoras, \ se \ ruega \ hacer 
+\-
+\+
+llegar sugerencias y observaciones a \ Miguel \ A. \ Lerma, \ despacho 
+\-
+\+
+4311.\,
+\-
+\+
+\,
+\+
+\,
+\+
+\,
+\+
+\,
+\+
+\,
+\+
+\^\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \4ENSAMBLADOR SIMBOLICO\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \^\,
+\+
+\^\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \1(ass versi¢n 1.0)\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \^\,
+\+
+\,
+\+
+\,
+\+
+\!Estructura de la m quina virtual\1:\,
+\+
+\,
+\+
+\,
+\+
+Consta de una CPU y una memoria.\,
+\+
+\,
+\+
+La memoria se compone de sucesivas posiciones, en cada una de \ las 
+\+
+cuales se puede almacenar un entero con signo de 16 bits (rango de 
+\+
+-32768 a 32767). Las direcciones de memoria son enteros de 15 bits 
+\+
+(rango \ de \ 0 \ a \ 32767), \ aunque \ el \ ensamblador \ podr  \ manejar 
+\+
+etiquetas. El c¢digo ejecutable se almacenar  al principio \ de \ la 
+\+
+memoria, mientras que el final se reserva para una pila que \ crece 
+\+
+hacia atr s, destinada a almacenar las direcciones de \ retorno \ de 
+\+
+llamadas. \ El \ tama¤o \ de \ la \ memoria \ disponible \ es \ de \ \ 16384 
+\+
+posiciones.\,
+\+
+\,
+\+
+La CPU dispone de cinco registros:\,
+\+
+\,
+\+
+-\[Acumulador (Acum), capaz de almacenar enteros con \ signo \ de \ 16 
+\+
+\ \ bits.\,
+\+
+\,
+\+
+-\[Contador de Operaci¢n (CO), que se¤ala la posici¢n de memoria de 
+\+
+\ \ donde se extrae la siguiente instrucci¢n a ejecutar.\,
+\+
+\,
+\+
+-\[Puntero de Pila (SP), que se¤ala a la cabeza de la pila. \,
+\+
+\,
+\+
+-\[Registro especial (R) para controlar resultados \ de \ operaciones 
+\+
+\ \ aritm‚ticas. Tras una divisi¢n, R almacena el resto de la misma. 
+\+
+\ \ En los dem s casos contiene los 16 bits altos de \ la \ diferencia 
+\+
+\ \ entre el resultado correcto y el \ obtenido, \ interpretados \ como 
+\+
+\ \ entero con signo de 32 bits \ (R=0 \ significar¡a \ que \ no \ se \ ha 
+\+
+\ \ producido sobrepasamiento).\,
+\+
+\,
+\+
+-\[Registro \ de \ ¡ndice \ (IX) \ para \ \ facilitar \ \ direccionamientos 
+\+
+\ \ relativos.\,
+\+
+\,
+\+
+\,
+\+
+\!Funcionamiento del ensamblador\1:\,
+\+
+\,
+\+
+\,
+\+
+El ensamblador lee el programa fuente de un archivo \ de \ texto \ en 
+\+
+disco, y lo \ traduce \ a \ un \ c¢digo \ m quina \ consistente \ en \ una 
+\+
+sucesi¢n de n£meros enteros de 16 bits que se suponen \ almacenados 
+\+
+en la memoria de la m quina virtual a partir de su posici¢n \ cero. 
+\+
+A continuaci¢n dicho c¢digo es interpretado emulando su \ ejecuci¢n 
+\+
+por la m quina virtual arriba descrita. Los datos \ se \ interpretan 
+\+
+como enteros con signo de 16 bits, y las direcciones como \ enteros 
+\+
+sin signo de 15 bits (despreciendo el bit alto).\,
+\+
+\,
+\+
+La sintaxis a seguir es la siguiente:\,
+\+
+\,
+\+
+> ass [opciones] nombarch [opciones]\,
+\+
+\,
+\+
+donde "nombarch" el mombre del archivo que \ contiene \ el \ programa \/
+\+
+fuente en ensamblador, y las posibles opciones son las siguientes:\,
+\+
+\,
+\+
+/c\ \ \[Emisi¢n de c¢digo m quina: el \ c¢digo \ m quina \ producido \ se 
+\+
+\ \ \ \ \ almacena en un archivo \ de \ nombre \ "codmaq". \ Al \ final \ del 
+\+
+\ \ \ \ \ ensamblado se guarda una tabla de etiquetas en otro \ archivo, 
+\+
+\ \ \ \ \ llamado "tabetq".\,
+\+
+\,
+\+
+/d\ \ \[Modo de depuraci¢n: la ejecuci¢n del c¢digo se realiza paso a 
+\+
+\ \ \ \ \ paso, mostrando el contenido \ de \ los \ registros \ de \ la \ CPU 
+\+
+\ \ \ \ \ virtual.\,
+\+
+\,
+\+
+El \ ensamblador \ es \ "case \ sensitive" \ (distingue \ may£sculas \ de 
+\+
+min£sculas), pero reconocer  las instrucciones en cualquier caso.\,
+\+
+\,
+\+
+Pasadas: El ensamblado se realizar  en una sola pasada si al final 
+\+
+de la misma no quedan \ etiquetas \ o \ expresiones \ indefinidas \ (se 
+\+
+utiliza \ la \ t‚cnica \ de \ "relleno \ por \ retroceso", \ lo \ que \ \ en 
+\+
+condiciones normales permitir  definir todas las etiquetas en \ una 
+\+
+sola pasada). En caso \ contrario \ se \ realizar n \ nuevas \ pasadas, 
+\+
+hasta que no se puedan definir m s etiquetas o expresiones.\,
+\+
+\,
+\+
+Errores: Cuando hacen falta \ varias \ pasadas, \ en \ la \ primera \ se 
+\+
+muestran todos los errores que pudiera haber en el programa, salvo 
+\+
+los de etiquetas indefinidas o evaluaci¢n de expresiones, \ que \ se 
+\+
+dan en la £ltima.\,
+\+
+\,
+\+
+\,
+\+
+\!Estructura de un programa\1:\,
+\+
+\,
+\+
+\,
+\+
+Un programa consta de una sucesi¢n de l¡neas, y \ termina \ con \ END 
+\+
+(no es una instrucci¢n, \ sino \ una \ marca \ del \ final \ f¡sico \ del 
+\+
+programa fuente).\,
+\+
+\,
+\+
+Cada l¡nea \ tiene \ los \ siguientes \ campos \ (donde \ los \ corchetes 
+\+
+indican que el campo es opcional):\,
+\+
+\,
+\+
+\^\ [ Etiqueta ':' ] [ Instrucci¢n ] [ ';' Comentario ] Nueva_l¡nea\^\,
+\+
+\,
+\+
+donde Instrucci¢n tiene el siguiente formato:\,
+\+
+\,
+\+
+\^\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ Mnem¢nico [ Operador ]\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \^\,
+\+
+\,
+\+
+o bien, para las instrucciones sin operador:\,
+\+
+\,
+\+
+\^\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ Mnem¢nico\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \^\,
+\+
+\,
+\+
+Una l¡nea puede estar vac¡a, en el sentido \ de \ contener \ s¢lo \ un 
+\+
+c¢digo de Nueva_l¡nea.\,
+\+
+\,
+\+
+Los comentarios empiezan con punto y coma ';' y \ llegan \ hasta \ el 
+\+
+final de la l¡nea. Sin embargo un punto y \ coma \ entre \ ap¢strofos 
+\+
+(';') se interpretar  como definici¢n de car cter (ver m s abajo), 
+\+
+y no como principio de comentario.\,
+\+
+\,
+\+
+Una etiqueta es un identificador que empieza con una letra y sigue 
+\+
+con letras, d¡gitos o el car cter de subrayado '_'.\,\/
+\+
+\,
+\+
+\,
+\+
+\!Repertorio de instrucciones\1:\,
+\+
+\,
+\+
+\,
+\+
+Las instrucciones con operando son las que llevan Op.\,
+\+
+\,
+\+
+\,
+\+
+- Grupo de NOP:\,\/
+\+
+\,\/
+\+
+NOP\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \[Sin operaci¢n; no se hace nada.\,
+\+
+\,
+\+
+- Grupo de movimientos:\,
+\+
+\,
+\+
+LDA Op\ \ \ \ \ \ \ \ \ \ \ \ \ \[(Op)  \8-L  \1Acum\,
+\+
+STA Op\ \ \ \ \ \ \ \ \ \ \ \ \ \[(Acum)  \8-L  \1Op\,
+\+
+LDSP Op\ \ \ \ \ \ \ \ \ \ \ \ \[(Op)  \8-L  \1SP\,
+\+
+STSP Op\ \ \ \ \ \ \ \ \ \ \ \ \[(SP)  \8-L  \1Op\,
+\+
+LDR Op\ \ \ \ \ \ \ \ \ \ \ \ \ \[(Op)  \8-L  \1R\,
+\+
+STR Op\ \ \ \ \ \ \ \ \ \ \ \ \ \[(R)  \8-L  \1Op\,
+\+
+LDIX Op\ \ \ \ \ \ \ \ \ \ \ \ \[(Op)  \8-L  \1IX\,
+\+
+STIX Op\ \ \ \ \ \ \ \ \ \ \ \ \[(IX)  \8-L  \1Op\,
+\+
+\,
+\+
+- Grupo de operaciones aritm‚ticas:\,
+\+
+\,
+\+
+ADD Op\ \ \ \ \ \ \ \ \ \ \ \ \ \[(Acum) + (Op)  \8-L  \1Acum\,
+\+
+SUB Op\ \ \ \ \ \ \ \ \ \ \ \ \ \[(Acum) - (Op)  \8-L  \1Acum\,
+\+
+MUL Op\ \ \ \ \ \ \ \ \ \ \ \ \ \[(Acum) * (Op)  \8-L  \1Acum\,
+\+
+DIV Op\ \ \ \ \ \ \ \ \ \ \ \ \ \[(Acum) / (Op)  \8-L  \1Acum\,
+\+
+INC Op\ \ \ \ \ \ \ \ \ \ \ \ \ \[(Op) + 1  \8-L  \1Op\,
+\+
+DEC Op\ \ \ \ \ \ \ \ \ \ \ \ \ \[(Op) - 1  \8-L  \1Op\,
+\+
+NEG Op\ \ \ \ \ \ \ \ \ \ \ \ \ \[-(Op)  \8-L  \1Op\,
+\+
+\,
+\+
+V‚ase arriba la forma en que las operaciones \ aritm‚ticas \ alteran \/
+\+
+el contenido del registro R.\,
+\+
+\,
+\+
+Una divisi¢n por cero produce un error de ejecuci¢n, al igual \ que 
+\+
+una cuyo cociente caiga fuera del rango de entero con signo de \ 16 
+\+
+bits.\,
+\+
+\,
+\+
+- Grupo de operaciones l¢gicas:\,
+\+
+\,
+\+
+AND Op\ \ \ \ \ \ \ \ \ \ \ \ \ \[Acum AND (Op)  \8-L  \1Acum\,
+\+
+\,
+\+
+OR Op\ \ \ \ \ \ \ \ \ \ \ \ \ \ \[Acum OR (Op)  \8-L  \1Acum\,
+\+
+\,
+\+
+NOT Op\ \ \ \ \ \ \ \ \ \ \ \ \ \[NOT (Op)  \8-L  \1Op\,
+\+
+\,
+\+
+Se toma false\6t\1=\6t\10 y true\6t\1=\6t\11. Un \ operando \ distinto \ de \ cero \ se 
+\+
+tomar  como "true".\,
+\+
+\,
+\+
+- Grupo de manejo de pila:\,
+\+
+\,
+\+
+PUSH Op\ \ \ \ \ \ \ \ \ \ \ \ \[Apilar (Op), es decir:\,\/
+\+
+\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \[(SP) - 1 \8-L \1SP, (Op) \8-L \1(SP)\,
+\+
+\,\/
+\+
+POP Op\ \ \ \ \ \ \ \ \ \ \ \ \ \[Desapilar Op, es decir:\,\/
+\+
+\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \[((SP)) \8-L \1Op, (SP) + 1 \8-L \1SP\,
+\+
+\,
+\+
+- Grupo de saltos:\,
+\+
+\,
+\+
+J Op\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \[Salto a la direcci¢n Op, es decir: Op \8-L \1CO\,
+\+
+JZ Op\ \ \ \ \ \ \ \ \ \ \ \ \ \ \[Salto a Op si (Acum) = 0\,
+\+
+JNZ Op\ \ \ \ \ \ \ \ \ \ \ \ \ \[Salto a Op si (Acum) \9$ \10\,
+\+
+JP Op\ \ \ \ \ \ \ \ \ \ \ \ \ \ \[Salto a Op si (Acum) > 0\,
+\+
+JNP Op\ \ \ \ \ \ \ \ \ \ \ \ \ \[Salto a Op si (Acum) \9< \10\,
+\+
+JM Op\ \ \ \ \ \ \ \ \ \ \ \ \ \ \[Salto a Op si (Acum) < 0\,
+\+
+JNM Op\ \ \ \ \ \ \ \ \ \ \ \ \ \[Salto a Op si (Acum) \9> \10\,
+\+
+\,
+\+
+- Grupo de llamadas y retornos:\,
+\+
+\,
+\+
+CALL Op\ \ \ \ \ \ \ \[Llamada a la direcci¢n Op:\,
+\+
+\ \ \ \ \ \ \ \ \ \ \ \ \ \ \[(SP) - 1 \8-L \1SP, (CO) \8-L \1(SP), (Op) \8-L \1CO\,
+\+
+\,
+\+
+RET\ \ \ \ \ \ \ \ \ \ \ \[Retorno desde la £ltima llamada:\,
+\+
+\ \ \ \ \ \ \ \ \ \ \ \ \ \ \[((SP)) \8-L \1CO, (SP) + 1 \8-L \1SP\,
+\+
+\,
+\+
+STOP\ \ \ \ \ \ \ \ \ \ \[Retorno al sistema operativo\,
+\+
+\,
+\+
+- Grupo de entrada-salida:\,
+\+
+\,
+\+
+INPUT Op\ \ \ \ \ \ \[Cargar \ en \ Op \ el \ c¢digo \ \ ASCII \ \ del \ \ car cter \/
+\+
+\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ introducido por teclado\,
+\+
+\,
+\+
+WRITE Op\ \ \ \ \ \ \[Escribir en pantalla el car cter cuyo c¢digo \ ASCII \/
+\+
+\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ viene dado por los 8 bits bajos de (Op)\,
+\+
+\,
+\+
+ININT Op\ \ \ \ \ \ \[Cargar en Op un entero introducido por teclado\,
+\+
+\,
+\+
+WRINT Op\ \ \ \ \ \ \[Escribir en pantalla el entero (Op)\,
+\+
+\,
+\+
+WRSTR Op\ \ \ \ \ \ \[Escribir en pantalla la cadena que empieza en\,
+\+
+\ \ \ \ \ \ \ \ \ \ \ \ \ \ \[la direcci¢n Op, y termina con un c¢digo nulo\,
+\+
+\ \ \ \ \ \ \ \ \ \ \ \ \ \ \[(se visualizan caracteres cuyos c¢digos ASCII\,
+\+
+\ \ \ \ \ \ \ \ \ \ \ \ \ \ \[viene dados por los 8 bits bajos de cada posici¢n)\,
+\+
+\,
+\+
+\,
+\+
+En todos los casos Op puede ser un n£mero entero o una etiqueta.\,
+\+
+\,
+\+
+Advertencia: la instrucci¢n WRSTR utiliza \ el \ acumulador \ y, \ por 
+\+
+tanto, el contenido de ‚ste ser  modificado en general.\,
+\+
+\,
+\+
+\,
+\+
+- Modos de direccionamiento:\,\/
+\+
+\,\/
+\+
+\ \ -\[Inmediato: Op se interpreta como el dato propiamente dicho. Se 
+\+
+\ \ \ \ expresa \ poniendo \ ',i' \ a \ continuaci¢n \ del \ nem¢nico. \ Ej.: 
+\+
+\ \ \ \ LDA,i\6t\176, cargar el n£mero \ 76 \ en \ el \ acumulador.\,
+\+
+\,\/
+\+
+\ \ -\[Directo: Op se interpreta como la direcci¢n donde se encuentra \/
+\+
+\ \ \ \ el dato, o a donde debe \ efectuarse \ el \ salto. \ Ej.: \ LDA\6t\176, \/
+\+
+\ \ \ \ cargar en el acumulador el contenido de la posici¢n de memoria \/
+\+
+\ \ \ \ nø 76; LDA\6t\1LB, cargar en el \ acumulador \ el \ contenido \ de \ la \/
+\+
+\ \ \ \ posici¢n indicada \ por \ la \ etiqueta \ LB; \ J\6t\176, \ salto \ a \ la \/
+\+
+\ \ \ \ direcci¢n 76.\,
+\+
+\,
+\+
+\ \ -\[Indirecto: Op se interpreta como una direcci¢n donde se \ halla 
+\+
+\ \ \ \ la direcci¢n del dato o del \ destino \ del \ salto. \ Se \ expresa 
+\+
+\ \ \ \ poniendo Op entre par‚ntesis: (Op). Ej.: \ LDA\6t\1(76), \ tomar \ el 
+\+
+\ \ \ \ contenido \ de \ la \ posici¢n \ 76 \ e \ interpretarlo \ \ como \ \ una 
+\+
+\ \ \ \ direcci¢n, luego tomar el contenido de ‚sta y cargarlo \ en \ el 
+\+
+\ \ \ \ acumulador. J\6t\1(76), salto a \ la \ direcci¢n \ almacenada \ en \ la 
+\+
+\ \ \ \ posici¢n 76.\,
+\+
+\,
+\+
+\ \ -\[Relativo: La direcci¢n del dato o de destino del salto se toma 
+\+
+\ \ \ \ igual al resultado de \ sumar \ el \ contenido \ del \ registro \ de 
+\+
+\ \ \ \ ¡ndice (IX) m s Op. Se expresa poniendo \ Op \ entre \ corchetes: 
+\+
+\ \ \ \ [Op]. Ej: LDA\6t\1[76], cargar en el acumulador el contenido de la 
+\+
+\ \ \ \ posici¢n de memoria (IX)+76. J\6t\1[76], \ saltar \ a \ la \ direcci¢n 
+\+
+\ \ \ \ (IX)+76. STA\6t\1[LB], poner el contenido \ del \ acumulador \ en \ la 
+\+
+\ \ \ \ posici¢n de memoria (IX)+LB.\,
+\+
+\,
+\+
+Aunque gramaticalmente admisible, provocar  un error sem ntico \ el 
+\+
+uso de direccionamiento inmediato en las instrucciones STA, \ STSP, 
+\+
+STR, STIX, INC, DEC, NEG, \ NOT, \ POP, \ INPUT, \ ININT, \ WRSTR, \ los 
+\+
+saltos y las llamadas.\,
+\+
+\,
+\+
+Cuando se omite el operando, se toma como tal el acumulador; \ ej.: 
+\+
+ADD \ (sin \ operando) \ equivale \ a \ duplicar \ \ el \ \ contenido \ \ del 
+\+
+acumulador; STSP significa poner el contenido del puntero de \ pila 
+\+
+en \ el \ acumulador. \ Para \ omitir \ \ el \ \ operando \ \ en \ \ modo \ \ de 
+\+
+direccionamiento indirecto, se \ escriben \ los \ par‚ntesis \ vac¡os; 
+\+
+ej.: \ J\6t\1() \ significa \ saltar \ a \ la \ direcci¢n \ expresada \ en \ el 
+\+
+acumulador. No se \ puede \ omitir \ el \ operando \ en \ los \ modos \ de 
+\+
+direccionamiento inmediato y relativo. Tampoco se puede omitir \ el 
+\+
+operando en modo de \ direccionamiento \ directo \ en \ los \ saltos \ y 
+\+
+llamadas y en la instrucci¢n WRSTR.\,
+\+
+\,
+\+
+\,
+\+
+- Pseudoinstrucciones:\,
+\+
+\,
+\+
+Las pseudoinstrucciones son ejecutadas por el ensamblador, no \ por 
+\+
+la m quina. Son las siguientes:\,
+\+
+\,
+\+
+L: EQU Exp\ \ \ \ \ \ \ \ \ \[Asigna a la etiqueta L el valor de Exp\,
+\+
+\,
+\+
+DC N\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \[Define la constante N\,
+\+
+\,
+\+
+DS N\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \[Reserva N posiciones de memoria\,
+\+
+\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \[y las llena con c¢digos nulos\,
+\+
+\,
+\+
+DFSTR Cd\ \ \ \ \ \ \ \ \ \ \ \[Pone la cadena Cd en memoria,\,
+\+
+\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \[finaliz ndola con un c¢digo nulo\,
+\+
+\,
+\+
+END\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \[Se¤ala el final del programa\,
+\+
+\,\/
+\+
+donde N es un entero, Exp una expresi¢n aritm‚tica \ y \ Cd \ es \ una 
+\+
+cadena entrecomillada. \ Advertencia: \ la \ instrucci¢n \ DFSTR \ s¢lo 
+\+
+sirve para definir cadenas de longitud limitada, dado que DFSTR\6t\1Cd 
+\+
+debe caber en el espacio de \ una \ sola \ l¡nea \ de \ programa. \ Para 
+\+
+cadenas m s largas, util¡cese reiteradamente la \ pseudoinstrucci¢n 
+\+
+DC.\,
+\+
+\,
+\+
+El argumento de EQU es una expresi¢n aritm‚tica, que puede incluir 
+\+
+enteros, \ etiquetas, \ \ los \ \ cuatro \ \ operadores \ \ aritm‚ticos \ \ y 
+\+
+par‚ntesis. Como con Cd, la longitud de Exp est  limitada \ por \ el 
+\+
+hecho de que L:\6t\1EQU\6t\1Exp debe entrar en longitud de una sola \ l¡nea 
+\+
+de programa.\,
+\+
+\,
+\+
+La pseudoinstrucci¢n END no puede llevar etiqueta.\,
+\+
+\,
+\+
+\,
+\+
+\!Representaci¢n de enteros y caracteres\1:\,\/
+\+
+\,\/
+\+
+\,\/
+\+
+Los enteros se representan en forma decimal o hexadecimal. En este \/
+\+
+£ltimo caso ir n precedidos por el s¡mbolo $, por ej.: $A4 = \ 164. 
+\+
+Un n£mero expresado en base 10 podr  ir \ precedido \ por \ un \ signo 
+\+
++\6t\1¢\6t\1-. El rango de valores aceptables para un n£mero en base 10 es 
+\+
+de -32768 a 32767, y en base 16 es de $0 \ a \ $FFFF \ (el \ rango \ de 
+\+
+$8000 a $FFFF se corresponde con los valores \ negativos \ -32768 \ a 
+\+
+-1).\,
+\+
+\,
+\+
+Los caracteres se representar n por sus c¢digos ASCII. Un car cter 
+\+
+entrecomillado (con comillas simples) representa el \ c¢digo \ ASCII 
+\+
+de dicho car cter, por ej,: 'g' = 103.\,
+\+
+\,
+\+
+En la representaci¢n de caracteres se pueden \ seguir \ convenciones 
+\+
+similares a las del lenguaje C, por ej.: '\\n' es \ un \ car cter \ de 
+\+
+nueva l¡nea, '\\t' representa un tabulador, '\\\\' significa car cter 
+\+
+de barra invertida, etc. As¡, por ej., la instrucci¢n WRITE,i\6t\1'\\n' 
+\+
+servir  \ para \ pasar \ a \ nueva \ l¡nea \ en \ \ la \ \ pantalla. \ \ Estas 
+\+
+convenciones no rigen \ para \ los \ caracteres \ que \ sean \ parte \ de 
+\+
+cadenas entrecomilladas; por ej.: "\\n" no es un car cter de \ nueva 
+\+
+l¡nea, sino una una cadena formada por los caracteres '\\\\' y \ 'n'. 
+\+
+El \ car cter \ de \ inicio \ de \ comentario \ (el \ punto \ y \ coma) \ se 
+\+
+interpretar  \ como \ car cter \ ordinario \ cuando \ \ aparezca \ \ entre 
+\+
+comillas simples (';'), o como parte de una cadena ("...;...").\,
+\+
+\,
+\+
+\,
+\+
+\!Ejemplos\1:\,\/
+\+
+\,\/
+\+
+\,\/
+\+
+- Posible ensamblado del siguiente programa:\,\/
+\+
+\,\/
+\+
+main()\,\/
+\+
+{\,\/
+\+
+\ \ \ \ \[int k, s=0;\,\/
+\+
+\,\/
+\+
+\ \ \ \ \[for (k=1; k<=100; ++k)\,\/
+\+
+\ \ \ \ \[{\,\/
+\+
+\ \ \ \ \ \ \ \ \ \[s+=k*k;\,\/
+\+
+\ \ \ \ \[};\,\/
+\+
+}\,
+\+
+\,
+\+
+\,
+\+
+START:\ \ \ \[LDA,i 1\ \ \[; Inicializaci¢n de k al principio del bucle\,
+\+
+\ \ \ \ \ \ \ \ \ \[STA V1\,
+\+
+\,
+\+
+L1:\ \ \ \ \ \ \[LDA V1\ \ \ \[; Se carga k en el acumulador\,
+\+
+\ \ \ \ \ \ \ \ \ \[SUB,i 100\,
+\+
+\ \ \ \ \ \ \ \ \ \[JNP L2\ \ \ \[; Test de final del bucle\,
+\+
+\ \ \ \ \ \ \ \ \ \[STOP\,
+\+
+\,
+\+
+L2:\ \ \ \ \ \ \[LDA V1\ \ \ \[; Se carga k en el acumulador\,
+\+
+\ \ \ \ \ \ \ \ \ \[MUL\ \ \ \ \ \ \[; Cuadrado del acumulador\,
+\+
+\ \ \ \ \ \ \ \ \ \[ADD V2\ \ \ \[; Se suma s\,
+\+
+\ \ \ \ \ \ \ \ \ \[STA V2\ \ \ \[; El resultado se almacena en s\,
+\+
+\ \ \ \ \ \ \ \ \ \[INC V1\ \ \ \[; se incrementa k\,
+\+
+\ \ \ \ \ \ \ \ \ \[J L1\ \ \ \ \ \[; Salto al principio del bucle\,
+\+
+\,
+\+
+V1:\ \ \ \ \ \ \[DC 0\ \ \ \ \ \[; V1 es k\,
+\+
+\,
+\+
+V2:\ \ \ \ \ \ \[DC 0\ \ \ \ \ \[; V2 es s, inicializada a cero\,
+\+
+\,
+\+
+\ \ \ \ \ \ \ \ \ \[END\ \ \ \ \ \ \[; Fin del programa\,
+\+
+\,
+\+
+\,
+\+
+- Definir un array de 100 elementos y sumarlos (sin usar IX):\,\/
+\+
+\,\/
+\+
+\,\/
+\+
+BUCLE:\ \ \ \[LDA IND\,
+\+
+\ \ \ \ \ \ \ \ \ \[SUB,i 100\,
+\+
+\ \ \ \ \ \ \ \ \ \[JM SIGUE\ \ \ \ \ \ \[; Test de final del bucle\,
+\+
+\ \ \ \ \ \ \ \ \ \[STOP\,
+\+
+\,
+\+
+SIGUE:\ \ \ \[LDA IND\,
+\+
+\ \ \ \ \ \ \ \ \ \[ADD AR\,
+\+
+\ \ \ \ \ \ \ \ \ \[STA DIR\,
+\+
+\ \ \ \ \ \ \ \ \ \[LDA SU\,
+\+
+\ \ \ \ \ \ \ \ \ \[ADD (DIR)\ \ \ \ \ \[; Acumulaci¢n de la suma\,\/
+\+
+\ \ \ \ \ \ \ \ \ \[STA SU\ \ \ \ \ \ \ \ \[; de los elementos\,
+\+
+\ \ \ \ \ \ \ \ \ \[INC IND\,
+\+
+\ \ \ \ \ \ \ \ \ \[J BUCLE\,
+\+
+\,
+\+
+IND:\ \ \ \ \ \[DC 0\ \ \ \ \ \ \ \ \ \ \[; Indice del array inicializado a cero\,
+\+
+DIR:\ \ \ \ \ \[DC 0\ \ \ \ \ \ \ \ \ \ \[; Direcci¢n de un elemento del array\,
+\+
+AR:\ \ \ \ \ \ \[DS 100\ \ \ \ \ \ \ \ \[; Array\,
+\+
+SU:\ \ \ \ \ \ \[DC 0\ \ \ \ \ \ \ \ \ \ \[; Suma inicializada a 0\,
+\+
+\,
+\+
+\ \ \ \ \ \ \ \ \ \[END\ \ \ \ \ \ \ \ \ \ \ \[; Fin del programa\,
+\+
+\,\/
+\+
+\,
+\+
+\,
+\+
+- Definir un array de 100 elementos y sumarlos (usando IX):\,\/
+\+
+\,\/
+\+
+\,\/
+\+
+START:\ \ \ \[LDIX,i AR\ \ \ \ \ \[; Se carga direcci¢n del array en IX\,
+\+
+\,
+\+
+BUCLE:\ \ \ \[LDA IND\,
+\+
+\ \ \ \ \ \ \ \ \ \[SUB,i 100\,
+\+
+\ \ \ \ \ \ \ \ \ \[JM SIGUE\ \ \ \ \ \ \[; Test de final del bucle\,
+\+
+\ \ \ \ \ \ \ \ \ \[STOP\,
+\+
+\,
+\+
+SIGUE:\ \ \ \[LDA SU\,
+\+
+\ \ \ \ \ \ \ \ \ \[ADD [IND]\ \ \ \ \ \[; Acumulaci¢n de la suma\,\/
+\+
+\ \ \ \ \ \ \ \ \ \[STA SU\ \ \ \ \ \ \ \ \[; de los elementos\,
+\+
+\ \ \ \ \ \ \ \ \ \[INC IND\,
+\+
+\ \ \ \ \ \ \ \ \ \[J BUCLE\,
+\+
+\,
+\+
+IND:\ \ \ \ \ \[DC 0\ \ \ \ \ \ \ \ \ \ \[; Indice del array inicializado a cero\,
+\+
+AR:\ \ \ \ \ \ \[DS 100\ \ \ \ \ \ \ \ \[; Array\,
+\+
+SU:\ \ \ \ \ \ \[DC 0\ \ \ \ \ \ \ \ \ \ \[; Suma inicializada a 0\,
+\+
+\,
+\+
+\ \ \ \ \ \ \ \ \ \[END\ \ \ \ \ \ \ \ \ \ \ \[; Fin del programa\,
+\+
+\,
+\+
+\,
+\+
+\,
+\+
+- Escribir la palabra "mensaje" en pantalla (sin usar WRSTR):\,\/
+\+
+\,\/
+\+
+\,\/
+\+
+START:\ \ \ \[LDA,i M\ \ \ \ \ \ \ \[; Se almacena en D la direcci¢n\,\/
+\+
+\ \ \ \ \ \ \ \ \ \[STA D\ \ \ \ \ \ \ \ \ \[; del primer car cter a visualizar\,
+\+
+\,
+\+
+BUCLE:\ \ \ \[LDA (D)\ \ \ \ \ \ \ \[; Se carga el car cter en el acumulador\,
+\+
+\ \ \ \ \ \ \ \ \ \[JNZ SIGUE\ \ \ \ \ \[; Test de final de cadena (c¢digo nulo)\,
+\+
+\ \ \ \ \ \ \ \ \ \[STOP\,
+\+
+\,
+\+
+SIGUE:\ \ \ \[WRITE\ \ \ \ \ \ \ \ \ \[; Se visualiza el car cter\,
+\+
+\ \ \ \ \ \ \ \ \ \[INC D\ \ \ \ \ \ \ \ \ \[; Se pasa al siguiente car cter\,
+\+
+\ \ \ \ \ \ \ \ \ \[J BUCLE\,
+\+
+\,
+\+
+D:\ \ \ \ \ \ \ \[DC 0\ \ \ \ \ \ \ \ \ \ \[; Direcci¢n del car cter a visualizar\,
+\+
+\,
+\+
+M:\ \ \ \ \ \ \ \[DFSTR "mensaje"\ \ \ \ \[; Mensaje a visualizar\,
+\+
+\,
+\+
+\ \ \ \ \ \ \ \ \ \[END\ \ \ \ \ \ \ \ \ \ \ \[; Final del programa\,
+\+
+\,
+\+
+\,
+\+
+- Escribir la palabra "mensaje" en pantalla (usando WRSTR):\,
+\+
+\,
+\+
+\,
+\+
+START:\ \ \ \[WRSTR S\ \ \ \ \ \ \ \[; Escribir la cadena que empieza en S\,
+\+
+\ \ \ \ \ \ \ \ \ \[STOP\,
+\+
+S:\ \ \ \ \ \ \ \[DFSTR "mensaje"\,
+\+
+\,
+\+
+\ \ \ \ \ \ \ \ \ \[END\,
+\+
+\,
+\+
+\,\/
+\+
+\,
+\+
+\!Gram tica del lenguaje ensamblador\1:\,\/
+\+
+\,\/
+\+
+\,\/
+\+
+\,\/
+\+                   *
+Programa  \8-L  \1Linea\   END\,\/
+\+
+\,\/
+\+
+Linea  \8-L  \1Campo_etiqueta  Campo_instruccion  Nueva_linea\,
+\+
+\,
+\+
+Campo_etiqueta  \8-L  \1Identificador  ':'  \9|  \7l\,
+\+
+\,
+\+
+\1Campo_instruccion  \8-L\ \ \ \[\1Instruccion_con_operando  Operando  \9|\,\/
+\+
+\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \[\1Instruccion_sin_operando  \9|\,\/
+\+
+\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \[\1Pseudoinstruccion  \9|\,\/
+\+
+\ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \ \[\7l\,
+\+
+\,
+\+
+\1Instruccion_con_operando  \8-L  \1(ver repertorio de instrucciones)\,
+\+
+\,
+\+
+Instruccion_sin_operando  \8-L  \1(ver repertorio de instrucciones)\,
+\+
+\,
+\+
+Pseudoinstruccion  \8-L  \1(ver repertorio de instrucciones)\,
+\+
+\,
+\+
+Operando \8-L \1Op_inmediato \9| \1Op_directo \9| \1Op_indirecto \9| \1Op_relativo\,
+\+
+\,
+\+
+Op_inmediato  \8-L  \1',i'  Op_directo1\,
+\+
+\,
+\+
+Op_directo1  \8-L  \1Entero  \9|  \1Identificador\,
+\+
+\,
+\+
+Op_directo  \8-L  \1Op_directo1  \9|  \7l\,
+\+
+\,
+\+
+\1Op_indirecto  \8-L  \1'('  Op_directo  ')'\,
+\+
+\,
+\+
+Op_relativo  \8-L  \1'['  Op_directo  ']'\,
+\+
+\,
+\+
+\,
+\+
+Entero  \8-L  \1E_decimal  \9|  \1E_hexadecimal\,
+\+
+\,
+\+                                +
+E_decimal  \8-L  \1['+'\9|\1'-']  digito\,
+\+
+\,
+\+                                          +
+E_hexadecimal  \8-L  \1'$'  digito_hexadecimal\,
+\+
+\,
+\+
+Caracter  \8-L\ \ \[\1(un s¡mbolo entre comillas simples, ver arriba\,\/
+\+
+\ \ \ \ \ \ \ \ \ \ \ \ \ \ \["representaci¢n de enteros y caracteres")\,
+\+
+\,
+\+                                                  *
+Identificador  \8-L  \1(letra\9|\1'_')  (letra\9|\1'_'\9|\1digito)\,
+\+
+\,
+\+
+letra  \8-L  \1A \9| \1... \9| \1Z \9| \1a \9| \1... \9| \1z\,
+\+
+\,
+\+
+digito  \8-L  \10   ..  \9|  \19\,
+\+
+\,
+\+
+digito_hexadecimal  \8-L  \1digito \9| \1A \9| \1... \9| \1F \9| \1a \9| \1... \9| \1f\,
+\+
+\,
+\+
+\,
+\+
+\,\/
+\+
+- Limitaciones (m ximos valores de...):\,\/
+\+
+\,\/
+\+
+\,\/
+\+
+Longitud de un identificador: 24 caracteres\,\/
+\+
+\,\/
+\+
+Longitud de una l¡nea de programa: 80 caracteres\,\/
+\+
+\,\/
+\+
+N£mero de etiquetas: 256\,\/
+\=
+
